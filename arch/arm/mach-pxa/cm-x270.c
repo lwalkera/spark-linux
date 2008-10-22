@@ -329,7 +329,7 @@ static struct pxafb_mach_info generic_crt_640x480 = {
 	.num_modes	= 1,
 	.lccr0		= (LCCR0_PAS),
 	.lccr3		= (LCCR3_PixClkDiv(0x01) |
-			   LCCR3_Acb(0xff)),
+			   LCCR3_Acb(0xff) | LCCR3_PCP),
 	.cmap_inverse	= 0,
 	.cmap_static	= 0,
 };
