@@ -1575,7 +1575,7 @@ static void udc_enable(struct pxa_udc *udc)
 {
 	udc_writel(udc, UDCICR0, 0);
 	udc_writel(udc, UDCICR1, 0);
-	udc_writel(udc, UP2OCR, UP2OCR_HXOE);
+	udc_writel(udc, UP2OCR, UP2OCR_HXOE | UP20CR_DPPUE);
 	udc_clear_mask_UDCCR(udc, UDCCR_UDE);
 
 	clk_enable(udc->clk);
