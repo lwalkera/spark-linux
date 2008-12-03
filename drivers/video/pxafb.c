@@ -2201,6 +2201,20 @@ static int __devinit pxafb_probe(struct platform_device *dev)
 	 */
 	set_ctrlr_state(fbi, C_ENABLE);
 
+#ifdef CONFIG_SHOW_LOGO_NO_CONSOLE
+	ret = fb_prepare_logo(&fbi->fb, 0);
+	if (ret < 0) {
+		dev_err(&dev->dev, "Failed to prepare preconsole logo\n");
+		goto failed;
+	}
+
+	ret = fb_show_logo(&fbi->fb, 0);
+	if (ret < 0) {
+		dev_err(&dev->dev, "Failed to draw preconsole logo\n");
+		goto failed;
+	}
+#endif
+
 	return 0;
 
 failed_free_cmap:
