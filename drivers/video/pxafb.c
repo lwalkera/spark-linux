@@ -1276,7 +1276,7 @@ static int __devinit pxafb_map_video_memory(struct pxafb_info *fbi)
 		fbi->dma_buff_phys = fbi->map_dma;
 		fbi->palette_cpu = (u16 *) fbi->dma_buff->palette;
 
-	        pr_debug("pxafb: palette_mem_size = 0x%08lx\n", fbi->palette_size*sizeof(u16));
+	        pr_debug("pxafb: palette_mem_size = 0x%08x\n", fbi->palette_size*sizeof(u16));
 
 #ifdef CONFIG_FB_PXA_SMARTPANEL
 		fbi->smart_cmds = (uint16_t *) fbi->dma_buff->cmd_buff;
@@ -1769,6 +1769,20 @@ static int __devinit pxafb_probe(struct platform_device *dev)
 	 * Ok, now enable the LCD controller
 	 */
 	set_ctrlr_state(fbi, C_ENABLE);
+
+#ifdef CONFIG_SHOW_LOGO_NO_CONSOLE
+	ret = fb_prepare_logo(&fbi->fb, 0);
+	if (ret < 0) {
+		dev_err(&dev->dev, "Failed to prepare preconsole logo\n");
+		goto failed;
+	}
+
+	ret = fb_show_logo(&fbi->fb, 0);
+	if (ret < 0) {
+		dev_err(&dev->dev, "Failed to draw preconsole logo\n");
+		goto failed;
+	}
+#endif
 
 	return 0;
 
