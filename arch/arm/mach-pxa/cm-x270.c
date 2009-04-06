@@ -284,7 +284,7 @@ static struct pxafb_mach_info generic_stn_320x240 = {
 
 static struct pxafb_mode_info generic_tft_640x480_mode = {
 	.pixclock	= 38461,
-	.bpp		= 8,
+	.bpp		= 16,
 	.xres		= 640,
 	.yres		= 480,
 	.hsync_len	= 60,
@@ -310,7 +310,7 @@ static struct pxafb_mach_info generic_tft_640x480 = {
 
 static struct pxafb_mode_info generic_crt_640x480_mode = {
 	.pixclock	= 38461,
-	.bpp		= 8,
+	.bpp		= 16,
 	.xres		= 640,
 	.yres		= 480,
 	.hsync_len	= 63,
@@ -541,9 +541,9 @@ static int cmx270_suspend(struct sys_device *dev, pm_message_t state)
 	PCFR = 0x0;
 	PSLR = 0xff400000;
 	PMCR  = 0x00000005;
-	PWER  = 0x80000000;
-	PFER  = 0x00000000;
-	PRER  = 0x00000000;
+	PWER  = 0x80000002;
+	PFER  = 0x00000002;
+	PRER  = 0x00000002;
 	PGSR0 = 0xC0018800;
 	PGSR1 = 0x004F0002;
 	PGSR2 = 0x6021C000;
@@ -608,6 +608,13 @@ static void __init cmx270_init(void)
 	pxa_gpio_mode(GPIO43_BTTXD_MD);
 	pxa_gpio_mode(GPIO44_BTCTS_MD);
 	pxa_gpio_mode(GPIO45_BTRTS_MD);
+
+#ifndef CONFIG_PCI
+	/* disable PCI bridge if the PCI driver is disabled */
+	/* put the PCI bridge into suspend mode and disable clocks to save power */
+	IT8152_PMPLL_DSR = 0x0000007F;
+	IT8152_PMPLL_PLLCR = 0x00000000;
+#endif
 }
 
 static void __init cmx270_init_irq(void)
