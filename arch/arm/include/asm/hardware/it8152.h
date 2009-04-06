@@ -41,6 +41,12 @@ extern unsigned long it8152_base_address;
 
 #define IT8152_GPIO_GPDR		__REG_IT8152(0x3f00500)
 
+/* Power management & PLL registers */
+#define IT8152_PMPLL_DSR		(*((volatile unsigned long *)(CMX270_IT8152_VIRT+0x03f00000)))
+#define IT8152_PMPLL_DSSR		(*((volatile unsigned long *)(CMX270_IT8152_VIRT+0x03f00004)))
+#define IT8152_PMPLL_PLLCR		(*((volatile unsigned long *)(CMX270_IT8152_VIRT+0x03f00020)))
+#define IT8152_PMPLL_MFSR		(*((volatile unsigned long *)(CMX270_IT8152_VIRT+0x03f00024)))
+
 /*
   Interrupt controller per register summary:
   ---------------------------------------

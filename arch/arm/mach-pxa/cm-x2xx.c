@@ -22,6 +22,7 @@
 #include <asm/mach/map.h>
 
 #include <mach/pxa2xx-regs.h>
+#include <mach/pxa27x.h>
 #include <mach/audio.h>
 #include <mach/pxafb.h>
 
@@ -216,7 +217,7 @@ static struct pxafb_mach_info generic_stn_320x240 = {
 
 static struct pxafb_mode_info generic_tft_640x480_mode = {
 	.pixclock	= 38461,
-	.bpp		= 8,
+	.bpp		= 16,
 	.xres		= 640,
 	.yres		= 480,
 	.hsync_len	= 60,
@@ -240,7 +241,7 @@ static struct pxafb_mach_info generic_tft_640x480 = {
 
 static struct pxafb_mode_info generic_crt_640x480_mode = {
 	.pixclock	= 38461,
-	.bpp		= 8,
+	.bpp		= 16,
 	.xres		= 640,
 	.yres		= 480,
 	.hsync_len	= 63,
@@ -397,9 +398,9 @@ static int cmx2xx_suspend(struct sys_device *dev, pm_message_t state)
 	PCFR = 0x0;
 	PSLR = 0xff400000;
 	PMCR  = 0x00000005;
-	PWER  = 0x80000000;
-	PFER  = 0x00000000;
-	PRER  = 0x00000000;
+	PWER  = 0x80000002;
+	PFER  = 0x00000002;
+	PRER  = 0x00000002;
 	PGSR0 = 0xC0018800;
 	PGSR1 = 0x004F0002;
 	PGSR2 = 0x6021C000;
@@ -433,6 +434,8 @@ static struct sys_device cmx2xx_pm_device = {
 static int __init cmx2xx_pm_init(void)
 {
 	int error;
+	pxa27x_set_pwrmode(PWRMODE_DEEPSLEEP);
+
 	error = sysdev_class_register(&cmx2xx_pm_sysclass);
 	if (error == 0)
 		error = sysdev_register(&cmx2xx_pm_device);
