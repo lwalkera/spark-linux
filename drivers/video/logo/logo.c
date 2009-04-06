@@ -35,6 +35,7 @@ extern const struct linux_logo logo_superh_mono;
 extern const struct linux_logo logo_superh_vga16;
 extern const struct linux_logo logo_superh_clut224;
 extern const struct linux_logo logo_m32r_clut224;
+extern const struct linux_logo logo_spark_clut224;
 
 static int nologo;
 module_param(nologo, bool, 0);
@@ -81,6 +82,9 @@ const struct linux_logo * __init_refok fb_find_logo(int depth)
 #ifdef CONFIG_LOGO_LINUX_CLUT224
 		/* Generic Linux logo */
 		logo = &logo_linux_clut224;
+#endif
+#ifdef CONFIG_LOGO_SPARK_CLUT224
+		logo = &logo_spark_clut224;
 #endif
 #ifdef CONFIG_LOGO_BLACKFIN_CLUT224
 		/* Blackfin Linux logo */
