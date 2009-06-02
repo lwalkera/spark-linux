@@ -71,7 +71,7 @@
  */
 
 #define	DRIVER_DESC	"USB Gadget filesystem"
-#define	DRIVER_VERSION	"24 Aug 2004"
+#define	DRIVER_VERSION	"2009-01-15"
 
 static const char driver_desc [] = DRIVER_DESC;
 static const char shortname [] = "gadgetfs";
@@ -1793,11 +1793,11 @@ static void gadgetfs_nop(struct usb_gadget *arg) { }
 static int gadgetfs_probe (struct usb_gadget *gadget)
 {
 	CHIP = gadget->name;
-	return -EISNAM;
+	return 0; //-EISNAM;
 }
 
 static struct usb_gadget_driver probe_driver = {
-	.speed		= USB_SPEED_HIGH,
+	.speed		= USB_SPEED_FULL,
 	.bind		= gadgetfs_probe,
 	.unbind		= gadgetfs_nop,
 	.setup		= (void *)gadgetfs_nop,
@@ -2053,6 +2053,7 @@ gadgetfs_fill_super (struct super_block *sb, void *opts, int silent)
 
 	/* fake probe to determine $CHIP */
 	(void) usb_gadget_register_driver (&probe_driver);
+	(void) usb_gadget_unregister_driver (&probe_driver);
 	if (!CHIP)
 		return -ENODEV;
 
