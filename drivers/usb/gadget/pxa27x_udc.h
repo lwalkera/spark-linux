@@ -409,8 +409,8 @@ struct udc_stats {
 	unsigned long	irqs_reconfig;
 };
 
-#define NR_USB_ENDPOINTS (1 + 5)	/* ep0 + ep1in-bulk + .. + ep3in-iso */
-#define NR_PXA_ENDPOINTS (1 + 14)	/* ep0 + epA + epB + .. + epX */
+#define NR_USB_ENDPOINTS (1 + 6)	/* ep0 + ep1in-bulk + .. + ep3in-iso */
+#define NR_PXA_ENDPOINTS (1 + 15)	/* ep0 + epA + epB + .. + epX */
 
 /**
  * struct pxa_udc - udc structure

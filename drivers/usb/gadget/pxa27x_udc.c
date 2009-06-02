@@ -80,7 +80,7 @@
  *    interrupt handling.
  */
 
-#define	DRIVER_VERSION	"2008-04-18"
+#define	DRIVER_VERSION	__DATE__ " " __TIME__
 #define	DRIVER_DESC	"PXA 27x USB Device Controller driver"
 
 static const char driver_name[] = "pxa27x_udc";
@@ -332,6 +332,10 @@ static inline void pxa_cleanup_debugfs(struct pxa_udc *udc)
 static int is_match_usb_pxa(struct udc_usb_ep *udc_usb_ep, struct pxa_ep *ep,
 		int config, int interface, int altsetting)
 {
+//printk( "match addr/dir/type/conf/if/alt: %02x/%02x/%02x/%02x/%02x/%02x <-> %02x/%02x/%02x/%02x/%02x/%02x\n",
+//		usb_endpoint_num(&udc_usb_ep->desc), usb_endpoint_dir_in(&udc_usb_ep->desc), usb_endpoint_type(&udc_usb_ep->desc), config, interface, altsetting,
+//		ep->addr, ep->dir_in, ep->type, ep->config, ep->interface, ep->alternate );
+
 	if (usb_endpoint_num(&udc_usb_ep->desc) != ep->addr)
 		return 0;
 	if (usb_endpoint_dir_in(&udc_usb_ep->desc) != ep->dir_in)
@@ -1263,7 +1267,7 @@ static int pxa_ep_set_halt(struct usb_ep *_ep, int value)
 		return -EINVAL;
 	udc_usb_ep = container_of(_ep, struct udc_usb_ep, usb_ep);
 	ep = udc_usb_ep->pxa_ep;
-	if (!ep || is_ep0(ep))
+	if (!ep /*|| is_ep0(ep)*/)
 		return -EINVAL;
 
 	if (value == 0) {
@@ -1575,7 +1579,7 @@ static void udc_enable(struct pxa_udc *udc)
 {
 	udc_writel(udc, UDCICR0, 0);
 	udc_writel(udc, UDCICR1, 0);
-	udc_writel(udc, UP2OCR, UP2OCR_HXOE | UP2OCR_DPPUE);
+//	udc_writel(udc, UP2OCR, UP2OCR_HXOE | UP2OCR_DPPUE);
 	udc_clear_mask_UDCCR(udc, UDCCR_UDE);
 
 	clk_enable(udc->clk);
@@ -2175,6 +2179,7 @@ static struct pxa_udc memory = {
 		USB_EP_IN_ISO(3),
 		USB_EP_OUT_ISO(4),
 		USB_EP_IN_INT(5),
+		USB_EP_IN_INT(1), // ep1in-int for PASPort
 	},
 
 	.pxa_ep = {
@@ -2188,22 +2193,25 @@ static struct pxa_udc memory = {
 		PXA_EP_IN_ISO(5,   3, 1, 0, 0),
 		PXA_EP_OUT_ISO(6,  4, 1, 0, 0),
 		PXA_EP_IN_INT(7,   5, 1, 0, 0),
+		PXA_EP_IN_INT(8,   1, 1, 0, 0), // ep1in-int for PASPort
 		/* Endpoints for RNDIS, serial */
-		PXA_EP_OUT_BULK(8, 1, 2, 0, 0),
-		PXA_EP_IN_BULK(9,  2, 2, 0, 0),
-		PXA_EP_IN_INT(10,  5, 2, 0, 0),
+		PXA_EP_OUT_BULK(9, 1, 2, 0, 0),
+		PXA_EP_IN_BULK(10,  2, 2, 0, 0),
+		PXA_EP_IN_INT(11,  5, 2, 0, 0),
 		/*
 		 * All the following endpoints are only for completion.  They
 		 * won't never work, as multiple interfaces are really broken on
 		 * the pxa.
 		*/
-		PXA_EP_OUT_BULK(11, 1, 2, 1, 0),
-		PXA_EP_IN_BULK(12,  2, 2, 1, 0),
+		PXA_EP_OUT_BULK(12, 1, 2, 1, 0),
+		PXA_EP_IN_BULK(13,  2, 2, 1, 0),
 		/* Endpoint for CDC Ether */
-		PXA_EP_OUT_BULK(13, 1, 1, 1, 1),
-		PXA_EP_IN_BULK(14,  2, 1, 1, 1),
+		PXA_EP_OUT_BULK(14, 1, 1, 1, 1),
+		PXA_EP_IN_BULK(15,  2, 1, 1, 1),
 	}
 };
+
+int set_udc_reg_base_addr( int addr );
 
 /**
  * pxa_udc_probe - probes the udc device
@@ -2241,6 +2249,8 @@ static int __init pxa_udc_probe(struct platform_device *pdev)
 		goto err_map;
 	}
 
+	set_udc_reg_base_addr( (int)udc->regs );
+
 	device_initialize(&udc->gadget.dev);
 	udc->gadget.dev.parent = &pdev->dev;
 	udc->gadget.dev.dma_mask = NULL;
@@ -2277,6 +2287,8 @@ err_clk:
 static int __exit pxa_udc_remove(struct platform_device *_dev)
 {
 	struct pxa_udc *udc = platform_get_drvdata(_dev);
+
+	set_udc_reg_base_addr( 0 );
 
 	usb_gadget_unregister_driver(udc->driver);
 	free_irq(udc->irq, udc);
@@ -2398,6 +2410,7 @@ static void __exit udc_exit(void)
 	platform_driver_unregister(&udc_driver);
 }
 module_exit(udc_exit);
+
 
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_AUTHOR("Robert Jarzmik");
