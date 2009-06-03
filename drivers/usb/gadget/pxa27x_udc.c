@@ -2211,8 +2211,6 @@ static struct pxa_udc memory = {
 	}
 };
 
-int set_udc_reg_base_addr( int addr );
-
 /**
  * pxa_udc_probe - probes the udc device
  * @_dev: platform device
@@ -2248,8 +2246,6 @@ static int __init pxa_udc_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "Unable to map UDC I/O memory\n");
 		goto err_map;
 	}
-
-	set_udc_reg_base_addr( (int)udc->regs );
 
 	device_initialize(&udc->gadget.dev);
 	udc->gadget.dev.parent = &pdev->dev;
@@ -2287,8 +2283,6 @@ err_clk:
 static int __exit pxa_udc_remove(struct platform_device *_dev)
 {
 	struct pxa_udc *udc = platform_get_drvdata(_dev);
-
-	set_udc_reg_base_addr( 0 );
 
 	usb_gadget_unregister_driver(udc->driver);
 	free_irq(udc->irq, udc);
