@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Linux kernel version: 2.6.26.8
-# Mon Jul 13 09:55:53 2009
+# Mon Jul 13 10:13:01 2009
 #
 CONFIG_ARM=y
 CONFIG_SYS_SUPPORTS_APM_EMULATION=y
@@ -271,9 +271,8 @@ CONFIG_CMDLINE="console=ttyS0,115200 root=/dev/hda1 rootdelay=5s"
 #
 # At least one emulation must be selected
 #
-CONFIG_FPE_NWFPE=y
-# CONFIG_FPE_NWFPE_XP is not set
-# CONFIG_FPE_FASTFPE is not set
+# CONFIG_FPE_NWFPE is not set
+CONFIG_FPE_FASTFPE=y
 
 #
 # Userspace binary formats
