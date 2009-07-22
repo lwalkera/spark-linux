@@ -1428,6 +1428,7 @@ static void pxafb_disable_controller(struct pxafb_info *fbi)
 {
 	uint32_t lccr0;
 
+	pr_debug("pxafb: diable controller\n");
 #ifdef CONFIG_FB_PXA_SMARTPANEL
 	if (fbi->lccr0 & LCCR0_LCDT) {
 		wait_for_completion_timeout(&fbi->refresh_done,
@@ -2199,6 +2200,8 @@ static int __devinit pxafb_probe(struct platform_device *dev)
 	/*
 	 * Ok, now enable the LCD controller
 	 */
+	set_ctrlr_state(fbi, C_ENABLE);
+	set_ctrlr_state(fbi, C_DISABLE);
 	set_ctrlr_state(fbi, C_ENABLE);
 
 #ifdef CONFIG_SHOW_LOGO_NO_CONSOLE
