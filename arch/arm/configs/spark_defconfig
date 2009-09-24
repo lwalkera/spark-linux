@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Linux kernel version: 2.6.26
-# Fri Sep 11 10:39:06 2009
+# Thu Sep 24 12:18:30 2009
 #
 CONFIG_ARM=y
 CONFIG_SYS_SUPPORTS_APM_EMULATION=y
@@ -560,7 +560,7 @@ CONFIG_NET_ETHERNET=y
 CONFIG_MII=y
 # CONFIG_AX88796 is not set
 # CONFIG_SMC91X is not set
-CONFIG_DM9000=y
+CONFIG_DM9000=m
 CONFIG_DM9000_DEBUGLEVEL=4
 # CONFIG_SMC911X is not set
 # CONFIG_IBM_NEW_EMAC_ZMII is not set
@@ -583,7 +583,7 @@ CONFIG_DM9000_DEBUGLEVEL=4
 #
 # CONFIG_USB_CATC is not set
 # CONFIG_USB_KAWETH is not set
-# CONFIG_USB_PEGASUS is not set
+CONFIG_USB_PEGASUS=m
 # CONFIG_USB_RTL8150 is not set
 # CONFIG_USB_USBNET is not set
 # CONFIG_NET_PCMCIA is not set
