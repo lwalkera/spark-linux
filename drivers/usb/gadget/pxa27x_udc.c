@@ -1579,6 +1579,7 @@ static void udc_enable(struct pxa_udc *udc)
 {
 	udc_writel(udc, UDCICR0, 0);
 	udc_writel(udc, UDCICR1, 0);
+	udc_writel(udc, UP2OCR,  0);
 //	udc_writel(udc, UP2OCR, UP2OCR_HXOE | UP2OCR_DPPUE);
 	udc_clear_mask_UDCCR(udc, UDCCR_UDE);
 
@@ -2211,6 +2212,22 @@ static struct pxa_udc memory = {
 	}
 };
 
+static ssize_t pxa_udc_store_enabled(struct device *device, struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct pxa_udc *udc = dev_get_drvdata(device);
+	int enabled = simple_strtoul(buf, NULL, 0);
+
+	if(enabled)
+		udc_writel(udc, UP2OCR, UP2OCR_HXOE | UP2OCR_DPPUE);
+	else
+		udc_writel(udc, UP2OCR, 0);
+
+	return count;
+}
+
+static struct device_attribute udc_enabled_attr = 
+	__ATTR(port_enabled, S_IWUGO, NULL, pxa_udc_store_enabled);
+
 /**
  * pxa_udc_probe - probes the udc device
  * @_dev: platform device
@@ -2266,6 +2283,14 @@ static int __init pxa_udc_probe(struct platform_device *pdev)
 	}
 
 	pxa_init_debugfs(udc);
+
+	retval = device_create_file(udc->dev, &udc_enabled_attr);
+	if (retval != 0) {
+		dev_err(udc->dev, "%s: can't get sysfs entry, err %d\n",
+				driver_name, retval);
+		goto err_irq;
+	}
+
 	return 0;
 err_irq:
 	iounmap(udc->regs);
@@ -2291,6 +2316,8 @@ static int __exit pxa_udc_remove(struct platform_device *_dev)
 	platform_set_drvdata(_dev, NULL);
 	the_controller = NULL;
 	clk_put(udc->clk);
+
+	device_remove_file(udc->dev, &udc_enabled_attr);
 
 	return 0;
 }
