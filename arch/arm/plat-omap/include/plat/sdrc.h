@@ -124,6 +124,29 @@ struct omap_sdrc_params {
 	u32 mr;
 };
 
+/* Helper macros and defines for the omap_sdrc_params registers */
+#define ACTIM_TRFC(a)		(((a) & 0x1f)<<27)
+#define ACTIM_TRC(a)		(((a) & 0x1f)<<22)
+#define ACTIM_TRAS(a)		(((a) & 0xf)<<18)
+#define ACTIM_TRP(a)		(((a) & 0x3)<<15)
+#define ACTIM_TRCD(a)		(((a) & 0x3)<<12)
+#define ACTIM_TRRD(a)		(((a) & 0x3)<<9)
+#define ACTIM_TDPL(a)		(((a) & 0x3)<<6)
+#define ACTIM_TDAL(a)		(((a) & 0x1f)<<0)
+
+#define ACTIM_TWTR(a)		(((a) & 0x3)<<16)
+#define ACTIM_TCKE(a)		(((a) & 0x7)<<12)
+#define ACTIM_TXP(a)		(((a) & 0x7)<<8)
+#define ACTIM_TXSR(a)		(((a) & 0xff)<<0)
+
+#define RFR_CTRL_ARCV(a) 	(((a) & 0xffff)<<8)
+#define RFR_CTRL_ARE(a)		(((a) & 0x3)<<0)
+
+#define MR_WBST(a)			(((a) & 0x1)<<9)
+#define MR_CASL(a)			(((a) & 0x7)<<4)
+#define MR_BL(a)			(((a) & 0x7)<<0)
+
+
 void __init omap2_sdrc_init(struct omap_sdrc_params *sdrc_cs0,
 			    struct omap_sdrc_params *sdrc_cs1);
 int omap2_sdrc_get_params(unsigned long r,
