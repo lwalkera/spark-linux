@@ -17,31 +17,43 @@
 static struct omap_sdrc_params h8mbx00u0mer0em_sdrc_params[] = {
 	[0] = {
 		.rate        = 200000000,
-		.actim_ctrla = 0xa2e1b4c6,
-		.actim_ctrlb = 0x0002131c,
-		.rfr_ctrl    = 0x0005e601,
-		.mr          = 0x00000032,
+		.actim_ctrla = ACTIM_TRFC(20) | ACTIM_TRC(11) | ACTIM_TRAS(8) |
+			ACTIM_TRP(3) | ACTIM_TRCD(3) | ACTIM_TRRD(2) | ACTIM_TDPL(3) |
+			ACTIM_TDAL(6),
+		.actim_ctrlb = ACTIM_TWTR(2) | ACTIM_TCKE(1) | ACTIM_TXP(3) |
+			ACTIM_TXSR(28),
+		.rfr_ctrl    = RFR_CTRL_ARCV(1510) | RFR_CTRL_ARE(1),
+		.mr          = MR_WBST(0) | MR_CASL(3) | MR_BL(2),
 	},
 	[1] = {
 		.rate        = 166000000,
-		.actim_ctrla = 0x629db4c6,
-		.actim_ctrlb = 0x00012214,
-		.rfr_ctrl    = 0x0004dc01,
-		.mr          = 0x00000032,
+		.actim_ctrla = ACTIM_TRFC(12) | ACTIM_TRC(10) | ACTIM_TRAS(7) |
+			ACTIM_TRP(3) | ACTIM_TRCD(3) | ACTIM_TRRD(2) | ACTIM_TDPL(3) |
+			ACTIM_TDAL(6),
+		.actim_ctrlb = ACTIM_TWTR(1) | ACTIM_TCKE(2) | ACTIM_TXP(2) |
+			ACTIM_TXSR(20),
+		.rfr_ctrl    = RFR_CTRL_ARCV(1244) | RFR_CTRL_ARE(1),
+		.mr          = MR_WBST(0) | MR_CASL(3) | MR_BL(2),
 	},
 	[2] = {
 		.rate        = 100000000,
-		.actim_ctrla = 0x51912284,
-		.actim_ctrlb = 0x0002120e,
-		.rfr_ctrl    = 0x0002d101,
-		.mr          = 0x00000022,
+		.actim_ctrla = ACTIM_TRFC(10) | ACTIM_TRC(6) | ACTIM_TRAS(4) |
+			ACTIM_TRP(2) | ACTIM_TRCD(2) | ACTIM_TRRD(1) | ACTIM_TDPL(2) |
+			ACTIM_TDAL(4),
+		.actim_ctrlb = ACTIM_TWTR(2) | ACTIM_TCKE(1) | ACTIM_TXP(2) |
+			ACTIM_TXSR(14),
+		.rfr_ctrl    = RFR_CTRL_ARCV(721) | RFR_CTRL_ARE(1),
+		.mr          = MR_WBST(0) | MR_CASL(2) | MR_BL(2),
 	},
 	[3] = {
 		.rate        = 83000000,
-		.actim_ctrla = 0x31512283,
-		.actim_ctrlb = 0x0001220a,
-		.rfr_ctrl    = 0x00025501,
-		.mr          = 0x00000022,
+		.actim_ctrla = ACTIM_TRFC(6) | ACTIM_TRC(5) | ACTIM_TRAS(4) |
+			ACTIM_TRP(2) | ACTIM_TRCD(2) | ACTIM_TRRD(1) | ACTIM_TDPL(2) |
+			ACTIM_TDAL(3),
+		.actim_ctrlb = ACTIM_TWTR(1) | ACTIM_TCKE(2) | ACTIM_TXP(2) |
+			ACTIM_TXSR(10),
+		.rfr_ctrl    = RFR_CTRL_ARCV(597) | RFR_CTRL_ARE(1),
+		.mr          = MR_WBST(0) | MR_CASL(2) | MR_BL(2),
 	},
 	[4] = {
 		.rate        = 0
