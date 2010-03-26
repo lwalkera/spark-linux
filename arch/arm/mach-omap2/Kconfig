@@ -122,6 +122,11 @@ config MACH_OMAP3_BEAGLE
 	default y
 	select OMAP_PACKAGE_CBB
 
+config MACH_SPARK_SLS_HW2
+	bool "PASCO SPARKsls HW2 board"
+	depends on ARCH_OMAP3
+	select OMAP_PACKAGE_CUS
+
 config MACH_DEVKIT8000
 	bool "DEVKIT8000 board"
 	depends on ARCH_OMAP3
