@@ -189,12 +189,15 @@ static int set_gpmc_timing_reg(int cs, int reg, int st_bit, int end_bit,
 #endif
 {
 	u32 l;
-	int ticks, mask, nr_bits;
+	int ticks, mask, nr_bits, para_gran;
+
+	para_gran = (gpmc_cs_read_reg(cs, GPMC_CS_CONFIG1) &
+		GPMC_CONFIG1_TIME_PARA_GRAN ? 2:1);
 
 	if (time == 0)
 		ticks = 0;
 	else
-		ticks = gpmc_ns_to_ticks(time);
+		ticks = gpmc_ns_to_ticks(time/para_gran);
 	nr_bits = end_bit - st_bit + 1;
 	if (ticks >= 1 << nr_bits) {
 #ifdef DEBUG
@@ -209,8 +212,8 @@ static int set_gpmc_timing_reg(int cs, int reg, int st_bit, int end_bit,
 #ifdef DEBUG
 	printk(KERN_INFO
 		"GPMC CS%d: %-10s: %3d ticks, %3lu ns (was %3i ticks) %3d ns\n",
-	       cs, name, ticks, gpmc_get_fclk_period() * ticks / 1000,
-			(l >> st_bit) & mask, time);
+	       cs, name, ticks, gpmc_get_fclk_period() * para_gran *
+		   ticks / 1000, (l >> st_bit) & mask, time);
 #endif
 	l &= ~(mask << st_bit);
 	l |= ticks << st_bit;
@@ -249,6 +252,9 @@ int gpmc_cs_set_timings(int cs, const struct gpmc_timings *t)
 {
 	int div;
 	u32 l;
+#ifdef DEBUG
+	printk(KERN_INFO "GPMC_FCLK: %ld\n", gpmc_get_fclk_period());
+#endif
 
 	div = gpmc_cs_calc_divider(cs, t->sync_clk);
 	if (div < 0)
