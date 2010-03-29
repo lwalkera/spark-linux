@@ -297,6 +297,47 @@ static void __init spark_hw2_init_extclks(void)
 	printk(KERN_DEBUG "board-sparkhw2: setup output clocks successfully\n");
 }
 
+static void __init spark_hw2_init_gpmc(void)
+{
+	unsigned long cs_mem_base;
+	struct gpmc_timings timings = {
+		.cs_on		= 50,
+		.cs_rd_off	= 250,
+		.cs_wr_off	= 250,
+
+		.we_on		= 50,
+		.we_off		= 250,
+
+		.oe_on		= 50,
+		.oe_off		= 250,
+
+		.access		= 166,
+		.wr_access	= 166,
+
+		.rd_cycle	= 373,
+		.wr_cycle	= 373,
+	};
+
+	/*Setup CONFIG1 as 16-bit, async, non-muxed, with all times x2*/
+	gpmc_cs_write_reg(0, GPMC_CS_CONFIG1,
+			GPMC_CONFIG1_DEVICESIZE_16 | GPMC_CONFIG1_TIME_PARA_GRAN);
+
+	if(gpmc_cs_set_timings(0, &timings) < 0)
+	{
+		printk(KERN_ERR "board-sparkhw2: Failed to set GPMC timings\n");
+		return;
+	}
+
+	if (gpmc_cs_request(0, SZ_16M, &cs_mem_base) < 0) {
+		printk(KERN_ERR "board-sparkhw2: Failed to request GPMC mem\n");
+		return;
+	}
+	/* Disable prefetch and disable cacheing*/
+	gpmc_prefetch_reset();
+
+	printk(KERN_DEBUG "board-sparkhw2: GPMC enabled, CS0 at 0x%08lx\n", cs_mem_base);
+}
+
 static const struct ehci_hcd_omap_platform_data ehci_pdata __initconst = {
 	.port_mode[0] = EHCI_HCD_OMAP_MODE_UNKNOWN,
 	.port_mode[1] = EHCI_HCD_OMAP_MODE_UNKNOWN,
@@ -353,6 +394,7 @@ static void __init spark_hw2_init(void)
 	omap_serial_init();
 
 	spark_hw2_init_extclks();
+	spark_hw2_init_gpmc();
 
 	usb_musb_init(&musb_board_data);
 	usb_ehci_init(&ehci_pdata);
