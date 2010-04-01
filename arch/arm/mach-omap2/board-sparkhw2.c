@@ -221,9 +221,15 @@ static struct platform_device keys_gpio = {
 };
 #endif
 
+static struct platform_device spark_hw2_otg_ulpi_xceiv = {
+	.name = "nop_usb_xceiv",
+	.id = -1,
+};
+
 static struct platform_device *spark_hw2_devices[] __initdata = {
 	&spark_hw2_dss_device,
 	&regulator_devices[0],
+	&spark_hw2_otg_ulpi_xceiv,
 #if 0
 	&leds_gpio,
 	&keys_gpio,
