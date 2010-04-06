@@ -56,11 +56,11 @@ static struct omap2_hsmmc_info mmc[] = {
 };
 
 static struct omap_dss_device spark_hw2_lcd_device = {
-	.name			= "lcd",
+	.name				= "lcd",
 	.driver_name		= "generic_panel",
-	.type			= OMAP_DISPLAY_TYPE_DPI,
+	.type				= OMAP_DISPLAY_TYPE_DPI,
 	.phy.dpi.data_lines	= 24,
-	.reset_gpio		= -EINVAL,
+	.reset_gpio			= -EINVAL,
 };
 
 static struct omap_dss_device *spark_hw2_dss_devices[] = {
@@ -85,53 +85,128 @@ static struct omap_lcd_config spark_hw2_lcd_config __initdata = {
 	.ctrl_name	= "internal",
 };
 
-static struct regulator_consumer_supply spark_hw2_vmmc1_supply = {
-	.supply			= "vmmc",
+static struct regulator_consumer_supply spark_hw2_vmmc_supply[] = {
+	REGULATOR_SUPPLY("vmmc", "mmci-omap-hs.0"),
+	REGULATOR_SUPPLY("vmmc_aux", "mmci-omap-hs.0"),
 };
 
-static struct regulator_consumer_supply spark_hw2_vsim_supply = {
-	.supply			= "vmmc_aux",
+/*
+static struct regulator_consumer_supply spark_hw2_vdds_supply[] = {
+	{ .supply = "vddio" },
+	{ .supply = "vsram" },
+	{ .supply = "vmem" },
 };
 
-static struct regulator_consumer_supply spark_hw2_vdvi_supply = {
-	.supply		= "vdvi",
-	.dev		= &spark_hw2_lcd_device.dev,
+static struct regulator_consumer_supply spark_hw2_vcore_supply = {
+	.supply = "vcore",
 };
 
-/* VMMC1 for MMC1 pins CMD, CLK, DAT0..DAT3 (20 mA, plus card == max 220 mA) */
-static struct regulator_init_data spark_hw2_vmmc1 = {
+static struct regulator_consumer_supply spark_hw2_vmpu_supply = {
+	.supply = "vmpu",
+};
+
+static struct regulator_consumer_supply spark_hw2_vdpll_supply[] = {
+	{ .supply = "dpll1" },
+	{ .supply = "dpll2" },
+	{ .supply = "dpll3" },
+	{ .supply = "dpll4" },
+	{ .supply = "dpll5" },
+};
+
+static struct regulator_init_data spark_hw2_tps65023_data[] = {
+	{
+		.constraints = {
+			.name			= "VDCDC1", //Vmpu 1.2v nom
+			.min_uV			= 1060000,
+			.max_uV			= 1350000,
+			.valid_modes_mask	= REGULATOR_MODE_FAST,
+			.valid_ops_mask		= REGULATOR_CHANGE_STATUS  |
+			                      REGULATOR_CHANGE_VOLTAGE |
+								  REGULATOR_CHANGE_MODE,
+		},
+		.num_consumer_supplies	= 1,
+		.consumer_supplies		= &spark_hw2_vmpu_supply,
+	},
+	{
+		.constraints = {
+			.name			= "VDCDC2", //Vcore 1.15v nom
+			.min_uV			= 1150000,
+			.max_uV			= 1150000,
+			.valid_modes_mask	= REGULATOR_MODE_NORMAL,
+			.valid_ops_mask		= REGULATOR_CHANGE_STATUS,
+		},
+		.num_consumer_supplies	= 1,
+		.consumer_supplies		= &spark_hw2_vcore_supply,
+	},
+	{
+		.constraints = {
+			.name			= "VDCDC3", //1.8v sys
+			.min_uV			= 1800000,
+			.max_uV			= 1800000,
+			.valid_modes_mask	= REGULATOR_MODE_NORMAL,
+			.valid_ops_mask		= REGULATOR_CHANGE_STATUS,
+		},
+		.num_consumer_supplies	= ARRAY_SIZE(spark_hw2_vdds_supply),
+		.consumer_supplies		= spark_hw2_vdds_supply,
+	},
+	{
+		.constraints = {
+			.name			= "LDO1", //1.8v dpll
+			.min_uV			= 1800000,
+			.max_uV			= 1800000,
+			.valid_modes_mask	= REGULATOR_MODE_NORMAL,
+			.valid_ops_mask		= REGULATOR_CHANGE_STATUS,
+		},
+		.num_consumer_supplies	= ARRAY_SIZE(spark_hw2_vdpll_supply),
+		.consumer_supplies		= spark_hw2_vdpll_supply,
+	},
+	{
+		.constraints = {
+			.name			= "LDO2", //3.3v mmc1/mmc1a
+			.min_uV			= 3300000,
+			.max_uV			= 3300000,
+			.valid_modes_mask	= REGULATOR_MODE_NORMAL,
+			.valid_ops_mask		= REGULATOR_CHANGE_STATUS,
+		},
+		.num_consumer_supplies	= ARRAY_SIZE(spark_hw2_vmmc_supply),
+		.consumer_supplies	= spark_hw2_vmmc_supply,
+	},
+
+};
+
+static struct i2c_board_info __initdata spark_hw2_i2c_boardinfo[] = {
+	{
+		I2C_BOARD_INFO("tps65023", 0x48),
+		.flags = I2C_CLIENT_WAKE,
+		.platform_data = &spark_hw2_tps65023_data,
+	},
+};
+
+static int __init spark_hw2_i2c_init(void)
+{
+	omap_register_i2c_bus(1, 400, spark_hw2_i2c_boardinfo,
+			ARRAY_SIZE(spark_hw2_i2c_boardinfo));
+	return 0;
+}
+*/
+
+static struct regulator_init_data spark_hw2_mmc_reg_initdata = {
 	.constraints = {
-		.name			= "LDO2",
-		.min_uV			= 3150000,
-		.max_uV			= 3150000,
+		.name			= "vMMC", //3.3v mmc1/mmc1a
+		.min_uV			= 3300000,
+		.max_uV			= 3300000,
 		.valid_modes_mask	= REGULATOR_MODE_NORMAL,
-		.valid_ops_mask		= REGULATOR_CHANGE_MODE,
+		.valid_ops_mask		= 0,
 	},
-	.num_consumer_supplies	= 1,
-	.consumer_supplies	= &spark_hw2_vmmc1_supply,
-};
-
-/* VPLL2 for digital video outputs */
-static struct regulator_init_data spark_hw2_vpll2 = {
-	.constraints = {
-		.name			= "VDVI",
-		.min_uV			= 1800000,
-		.max_uV			= 1800000,
-		.valid_modes_mask	= REGULATOR_MODE_NORMAL
-					| REGULATOR_MODE_STANDBY,
-		.valid_ops_mask		= REGULATOR_CHANGE_MODE
-					| REGULATOR_CHANGE_STATUS,
-	},
-	.num_consumer_supplies	= 1,
-	.consumer_supplies	= &spark_hw2_vdvi_supply,
+	.num_consumer_supplies	= ARRAY_SIZE(spark_hw2_vmmc_supply),
+	.consumer_supplies	= spark_hw2_vmmc_supply,
 };
 
 static struct fixed_voltage_config spark_hw2_fixed1 = {
-	.supply_name = "vmmc",
-	.microvolts = 3150000,
-	.gpio		= -EINVAL,
+	.supply_name = "3.3V",
+	.microvolts = 3300000,
 	.enabled_at_boot = true,
-	.init_data = &spark_hw2_vmmc1,
+	.init_data = &spark_hw2_mmc_reg_initdata,
 };
 
 static struct platform_device regulator_devices[] = {
@@ -144,26 +219,6 @@ static struct platform_device regulator_devices[] = {
 	},
 };
 
-#if 0
-static struct i2c_board_info __initdata spark_hw2_i2c_boardinfo[] = {
-	{
-		I2C_BOARD_INFO("twl4030", 0x48),
-		.flags = I2C_CLIENT_WAKE,
-		.irq = INT_34XX_SYS_NIRQ,
-		.platform_data = &spark_hw2_twldata,
-	},
-};
-
-static int __init omap3_beagle_i2c_init(void)
-{
-	omap_register_i2c_bus(1, 2600, beagle_i2c_boardinfo,
-			ARRAY_SIZE(beagle_i2c_boardinfo));
-	/* Bus 3 is attached to the DVI port where devices like the pico DLP
-	 * projector don't work reliably with 400kHz */
-	omap_register_i2c_bus(3, 100, NULL, 0);
-	return 0;
-}
-#endif
 
 #if 0
 static struct gpio_led gpio_leds[] = {
@@ -394,7 +449,7 @@ static struct omap_musb_board_data musb_board_data = {
 static void __init spark_hw2_init(void)
 {
 	omap3_mux_init(board_mux, OMAP_PACKAGE_CUS);
-	//omap3_beagle_i2c_init();
+	//spark_hw2_i2c_init();
 	platform_add_devices(spark_hw2_devices,
 			ARRAY_SIZE(spark_hw2_devices));
 	omap_serial_init();
