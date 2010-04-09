@@ -463,6 +463,18 @@ static void __init spark_hw2_init(void)
 
 	/* Ensure SDRC pins are mux'd for self-refresh */
 	omap_mux_init_signal("sdrc_cke0", OMAP_PIN_OUTPUT);
+
+	// Init Spark FPGA IRQ and FPGA JTAG I/O
+	omap_mux_init_gpio( 55, OMAP_PIN_INPUT_PULLUP );
+	gpio_request( 55, "pasport-irq" );
+	gpio_direction_input( 55 );
+
+	omap_mux_init_gpio( 106, OMAP_PIN_INPUT_PULLUP );
+	omap_mux_init_gpio( 107, OMAP_PIN_INPUT_PULLUP );
+	omap_mux_init_gpio( 108, OMAP_PIN_INPUT_PULLUP );
+	omap_mux_init_gpio( 109, OMAP_PIN_INPUT_PULLUP );
+	omap_mux_init_gpio( 110, OMAP_PIN_INPUT_PULLUP );
+
 }
 
 
