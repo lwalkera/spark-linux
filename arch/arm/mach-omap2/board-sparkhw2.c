@@ -10,6 +10,7 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+#define pr_fmt(fmt) "board_sparkhw2: " fmt
 
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -316,46 +317,46 @@ static void __init spark_hw2_init_extclks(void)
 	/* Reparent clkout2 to 96M_FCK */
 	outclk = clk_get(NULL, "clkout2_src_ck");
 	if(outclk < 0) {
-		printk(KERN_ERR "board-sparkhw2: couldn't get clkout2_src_ck\n");
+		pr_err("couldn't get clkout2_src_ck\n");
 		return;
 	}
 	outclk2 = clk_get(NULL, "cm_96m_fck");
 	if(outclk2 < 0)	{
-		printk(KERN_ERR "board-sparkhw2: couldn't get cm_96m_fck\n");
+		pr_err("couldn't get cm_96m_fck\n");
 		return;
 	}
 	if(clk_set_parent(outclk, outclk2) < 0) {
-		printk(KERN_ERR "board-sparkhw2: couldn't reparent clkout2_src_ck\n");
+		pr_err("couldn't reparent clkout2_src_ck\n");
 		return;
 	}
 
 	/* Set clkout2 to 24MHz for internal usb hub*/
 	outclk = clk_get(NULL, "sys_clkout2");
 	if(outclk < 0) {
-		printk(KERN_ERR "board-sparkhw2: couldn't get sys_clkout2\n");
+		pr_err("couldn't get sys_clkout2\n");
 		return;
 	}
 	if(clk_set_rate(outclk, 24000000) < 0) {
-		printk(KERN_ERR "board-sparkhw2: couldn't set sys_clkout2 rate\n");
+		pr_err("couldn't set sys_clkout2 rate\n");
 		return;
 	}
 	if(clk_enable(outclk) < 0) {
-		printk(KERN_ERR "board-sparkhw2: couldn't enable sys_clkout2\n");
+		pr_err("couldn't enable sys_clkout2\n");
 		return;
 	}
 
 	/* Enable clkout1, which should be sys_clk @ 12MHz */
 	outclk = clk_get(NULL, "sys_clkout1");
 	if(outclk < 0) {
-		printk(KERN_ERR "board-sparkhw2: couldn't get sys_clkout1\n");
+		pr_err("couldn't get sys_clkout1\n");
 		return;
 	}
 	if(clk_enable(outclk) < 0) {
-		printk(KERN_ERR "board-sparkhw2: couldn't enable sys_clkout1\n");
+		pr_err("couldn't enable sys_clkout1\n");
 		return;
 	}
 
-	printk(KERN_DEBUG "board-sparkhw2: setup output clocks successfully\n");
+	pr_debug("setup output clocks successfully\n");
 }
 
 static void __init spark_hw2_init_gpmc(void)
@@ -385,18 +386,18 @@ static void __init spark_hw2_init_gpmc(void)
 
 	if(gpmc_cs_set_timings(0, &timings) < 0)
 	{
-		printk(KERN_ERR "board-sparkhw2: Failed to set GPMC timings\n");
+		pr_err("Failed to set GPMC timings\n");
 		return;
 	}
 
 	if (gpmc_cs_request(0, SZ_16M, &cs_mem_base) < 0) {
-		printk(KERN_ERR "board-sparkhw2: Failed to request GPMC mem\n");
+		pr_err("Failed to request GPMC mem\n");
 		return;
 	}
 	/* Disable prefetch and disable cacheing*/
 	gpmc_prefetch_reset();
 
-	printk(KERN_DEBUG "board-sparkhw2: GPMC enabled, CS0 at 0x%08lx\n", cs_mem_base);
+	pr_debug("GPMC enabled, CS0 at 0x%08lx\n", cs_mem_base);
 }
 
 static const struct ehci_hcd_omap_platform_data ehci_pdata __initconst = {
@@ -474,7 +475,6 @@ static void __init spark_hw2_init(void)
 	omap_mux_init_gpio( 108, OMAP_PIN_INPUT_PULLUP );
 	omap_mux_init_gpio( 109, OMAP_PIN_INPUT_PULLUP );
 	omap_mux_init_gpio( 110, OMAP_PIN_INPUT_PULLUP );
-
 }
 
 
