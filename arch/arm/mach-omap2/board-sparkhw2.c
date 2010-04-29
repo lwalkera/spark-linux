@@ -207,6 +207,7 @@ static struct fixed_voltage_config spark_hw2_fixed1 = {
 	.supply_name = "3.3V",
 	.microvolts = 3300000,
 	.enabled_at_boot = true,
+	.gpio = -1,
 	.init_data = &spark_hw2_mmc_reg_initdata,
 };
 
@@ -300,8 +301,7 @@ static void __init spark_hw2_init_irq(void)
 {
 	omap_board_config = spark_hw2_config;
 	omap_board_config_size = ARRAY_SIZE(spark_hw2_config);
-	omap2_init_common_hw(mt46h16m32lf6_sdrc_params,
-			     mt46h16m32lf6_sdrc_params);
+	omap2_init_common_hw(mt46h16m32lf6_sdrc_params, NULL);
 	omap_init_irq();
 #ifdef CONFIG_OMAP_32K_TIMER
 	omap2_gp_clockevent_set_gptimer(12);
