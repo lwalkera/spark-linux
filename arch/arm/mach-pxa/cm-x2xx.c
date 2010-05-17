@@ -34,6 +34,18 @@
 extern void cmx255_init(void);
 extern void cmx270_init(void);
 
+static void (*backlight_power_cb)(int) = NULL;
+static void do_backlight_power(int on)
+{
+	if(backlight_power_cb)
+		backlight_power_cb(on);
+}
+void cm_x2xx_set_backlight_cb(void (*cb)(int))
+{
+	backlight_power_cb = cb;
+}
+EXPORT_SYMBOL(cm_x2xx_set_backlight_cb);
+
 /* virtual addresses for statically mapped regions */
 #define CMX2XX_VIRT_BASE	(0xe8000000)
 #define CMX2XX_IT8152_VIRT	(CMX2XX_VIRT_BASE)
@@ -258,9 +270,11 @@ static struct pxafb_mode_info generic_crt_640x480_mode = {
 static struct pxafb_mach_info generic_crt_640x480 = {
 	.modes		= &generic_crt_640x480_mode,
 	.num_modes	= 1,
-	.lcd_conn	= LCD_COLOR_TFT_8BPP | LCD_AC_BIAS_FREQ(0xff),
+	.lcd_conn	= LCD_COLOR_TFT_8BPP | LCD_PCLK_EDGE_FALL |
+		LCD_AC_BIAS_FREQ(0xff),
 	.cmap_inverse	= 0,
 	.cmap_static	= 0,
+	.pxafb_backlight_power = &do_backlight_power,
 };
 
 static struct pxafb_mode_info generic_crt_800x600_mode = {
