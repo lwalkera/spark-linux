@@ -359,6 +359,36 @@ static int ohci_hcd_pxa27x_drv_resume(struct platform_device *pdev)
 	ohci_finish_controller_resume(hcd);
 	return 0;
 }
+
+static int ohci_hcd_pxa27x_drv_resume_early(struct platform_device *pdev)
+{
+	unsigned int status;
+
+	/* Workaround for eratta E69: "UHC: Exiting from sleep/deep 
+	 * sleep mode may cause unexpeced USBH2 interrupt."
+	 * Based on the workaround in Marvell PXA27x Processor Family
+	 * Spec. Update, Rev 11.2 Ver B
+	 */
+	if((status = UHCSTAT & 0x0001FD80))
+	{
+		pr_warning("Spurious USBH interrupt on resume\n");
+		UHCSTAT = status;
+	}
+	
+	/* Workaround for glitchy OHCI controller sometimes hanging the
+	 * processor on resume
+	 */
+	if(UHCINTS & OHCI_INTR_UE)
+	{
+		volatile int j;
+		pr_warning("USBH wokeup in bad state, resetting...\n");
+		UHCCOMS |= 1;
+		/* Delay at least 10us to complete reset*/
+		for(j=0;j<0x1000;j++);
+	}
+
+	return 0;
+}
 #endif
 
 /* work with hotplug and coldplug */
@@ -371,6 +401,7 @@ static struct platform_driver ohci_hcd_pxa27x_driver = {
 #ifdef CONFIG_PM
 	.suspend	= ohci_hcd_pxa27x_drv_suspend,
 	.resume		= ohci_hcd_pxa27x_drv_resume,
+	.resume_early = ohci_hcd_pxa27x_drv_resume_early,
 #endif
 	.driver		= {
 		.name	= "pxa27x-ohci",
