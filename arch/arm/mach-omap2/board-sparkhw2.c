@@ -477,6 +477,10 @@ static void __init spark_hw2_init(void)
 	gpio_request( 55, "pasport-irq" );
 	gpio_direction_input( 55 );
 
+	omap_mux_init_gpio( 126, OMAP_PIN_OUTPUT );
+	gpio_request( 126, "usbclient-rst" );
+	gpio_direction_output( 126, true );
+
 	omap_mux_init_gpio( 106, OMAP_PIN_INPUT_PULLUP );
 	omap_mux_init_gpio( 107, OMAP_PIN_INPUT_PULLUP );
 	omap_mux_init_gpio( 108, OMAP_PIN_INPUT_PULLUP );
