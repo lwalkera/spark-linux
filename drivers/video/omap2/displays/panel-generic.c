@@ -91,9 +91,12 @@ static int generic_panel_enable(struct omap_dss_device *dssdev)
 
 static void generic_panel_disable(struct omap_dss_device *dssdev)
 {
-	generic_panel_power_off(dssdev);
+	if(dssdev->state == OMAP_DSS_DISPLAY_ACTIVE)
+	{
+		generic_panel_power_off(dssdev);
 
-	dssdev->state = OMAP_DSS_DISPLAY_DISABLED;
+		dssdev->state = OMAP_DSS_DISPLAY_DISABLED;
+	}
 }
 
 static int generic_panel_suspend(struct omap_dss_device *dssdev)
