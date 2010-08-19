@@ -39,6 +39,7 @@
 #include <plat/usb.h>
 #include <plat/timer-gp.h>
 #include <plat/display.h>
+#include <plat/omap-pm.h>
 
 #include "mux.h"
 #include "hsmmc.h"
@@ -49,9 +50,9 @@ static struct omap2_hsmmc_info mmc[] = {
 	{
 		.mmc		= 1,
 		.wires		= 4,
-		.gpio_cd	= -EINVAL,
+		.gpio_cd	= 99,
 		.gpio_wp	= -EINVAL,
-		.nonremovable = true,
+		.nonremovable = false,
 	},
 	{
 		.mmc		= 2,
@@ -79,6 +80,7 @@ static struct omap_dss_board_info spark_hw2_dss_data = {
 	.num_devices	= ARRAY_SIZE(spark_hw2_dss_devices),
 	.devices	= spark_hw2_dss_devices,
 	.default_device	= &spark_hw2_lcd_device,
+	.get_last_off_on_transaction_id = omap_pm_get_dev_context_loss_count,
 };
 
 static struct platform_device spark_hw2_dss_device = {
@@ -214,7 +216,7 @@ static struct fixed_voltage_config spark_hw2_fixed1 = {
 	.supply_name = "3.3V",
 	.microvolts = 3300000,
 	.enabled_at_boot = true,
-	.gpio = -1,
+	.gpio = -EINVAL,
 	.init_data = &spark_hw2_mmc_reg_initdata,
 };
 
@@ -417,31 +419,15 @@ static const struct ehci_hcd_omap_platform_data ehci_pdata __initconst = {
 
 #ifdef CONFIG_OMAP_MUX
 static struct omap_board_mux board_mux[] __initdata = {
-/* HSUSB2 */
-	OMAP3_MUX(ETK_D10,     OMAP_MUX_MODE3 | OMAP_PIN_OUTPUT),
-	/*HSUSB2_CLK*/
-	OMAP3_MUX(ETK_D11,     OMAP_MUX_MODE3 | OMAP_PIN_OUTPUT),
-	/*HSUSB2_STP*/
-	OMAP3_MUX(ETK_D12,     OMAP_MUX_MODE3 | OMAP_PIN_INPUT_PULLDOWN),
-	/*HSUSB2_DIR*/
-	OMAP3_MUX(ETK_D13,     OMAP_MUX_MODE3 | OMAP_PIN_INPUT_PULLDOWN),
-	/*HSUSB2_NXT*/
-	OMAP3_MUX(ETK_D14,     OMAP_MUX_MODE3 | OMAP_PIN_INPUT_PULLDOWN),
-	/*HSUSB2_D0*/
-	OMAP3_MUX(ETK_D15,     OMAP_MUX_MODE3 | OMAP_PIN_INPUT_PULLDOWN),
-	/*HSUSB2_D1*/
-	OMAP3_MUX(MCSPI1_CS3,  OMAP_MUX_MODE3 | OMAP_PIN_INPUT_PULLDOWN),
-	/*HSUSB2_D2*/
-	OMAP3_MUX(MCSPI2_CS1,  OMAP_MUX_MODE3 | OMAP_PIN_INPUT_PULLDOWN),
-	/*HSUSB2_D3*/
-	OMAP3_MUX(MCSPI2_SIMO, OMAP_MUX_MODE3 | OMAP_PIN_INPUT_PULLDOWN),
-	/*HSUSB2_D4*/
-	OMAP3_MUX(MCSPI2_SOMI, OMAP_MUX_MODE3 | OMAP_PIN_INPUT_PULLDOWN),
-	/*HSUSB2_D5*/
-	OMAP3_MUX(MCSPI2_CS0,  OMAP_MUX_MODE3 | OMAP_PIN_INPUT_PULLDOWN),
-	/*HSUSB2_D6*/
-	OMAP3_MUX(MCSPI2_CLK,  OMAP_MUX_MODE3 | OMAP_PIN_INPUT_PULLDOWN),
-	/*HSUSB2_D7*/
+/* GPIO */
+	OMAP3_MUX(CAM_STROBE, OMAP_MUX_MODE4 | OMAP_PIN_OUTPUT),
+	/*GPIO_126 - mUSB PHY reset*/
+	OMAP3_MUX(CAM_D0,     OMAP_MUX_MODE4 | OMAP_PIN_INPUT_PULLUP),
+	/*GPIO_99 - SD card detect*/
+	OMAP3_MUX(SYS_CLKREQ, OMAP_MUX_MODE4 | OMAP_PIN_INPUT_PULLUP | OMAP_PIN_OFF_INPUT_PULLUP | OMAP_PIN_OFF_WAKEUPENABLE),
+	/*GPIO_1 - Wakeup signal from power mgr*/
+	OMAP3_MUX(JTAG_EMU0, OMAP_MUX_MODE4 | OMAP_PIN_INPUT_PULLUP | OMAP_PIN_OFF_INPUT_PULLUP | OMAP_PIN_OFF_WAKEUPENABLE),
+	OMAP3_MUX(JTAG_EMU1, OMAP_MUX_MODE4 | OMAP_PIN_INPUT_PULLUP | OMAP_PIN_OFF_INPUT_PULLUP | OMAP_PIN_OFF_WAKEUPENABLE),
 	{ .reg_offset = OMAP_MUX_TERMINATOR },
 };
 #else
@@ -451,7 +437,7 @@ static struct omap_board_mux board_mux[] __initdata = {
 static struct omap_musb_board_data musb_board_data = {
 	.interface_type		= MUSB_INTERFACE_ULPI,
 	.mode				= MUSB_PERIPHERAL,
-	.power				= 100,
+	.power				= 500,
 };
 
 static void __init spark_hw2_init(void)
@@ -465,6 +451,9 @@ static void __init spark_hw2_init(void)
 	spark_hw2_init_extclks();
 	spark_hw2_init_gpmc();
 
+	gpio_request( 126, "usbclient-rst" );
+	gpio_direction_output( 126, true );
+
 	usb_musb_init(&musb_board_data);
 	usb_ehci_init(&ehci_pdata);
 	omap2_hsmmc_init(mmc);
@@ -472,14 +461,14 @@ static void __init spark_hw2_init(void)
 	/* Ensure SDRC pins are mux'd for self-refresh */
 	omap_mux_init_signal("sdrc_cke0", OMAP_PIN_OUTPUT);
 
+	omap_mux_init_gpio(9, OMAP_PIN_OUTPUT);
+	gpio_request( 9, "pwrsignal");
+	gpio_direction_output( 9, true);
+
 	// Init Spark FPGA IRQ and FPGA JTAG I/O
 	omap_mux_init_gpio( 55, OMAP_PIN_INPUT_PULLUP );
 	gpio_request( 55, "pasport-irq" );
 	gpio_direction_input( 55 );
-
-	omap_mux_init_gpio( 126, OMAP_PIN_OUTPUT );
-	gpio_request( 126, "usbclient-rst" );
-	gpio_direction_output( 126, true );
 
 	omap_mux_init_gpio( 106, OMAP_PIN_INPUT_PULLUP );
 	omap_mux_init_gpio( 107, OMAP_PIN_INPUT_PULLUP );
