@@ -404,7 +404,7 @@ static void __init spark_hw2_init_gpmc(void)
 		return;
 	}
 	/* Disable prefetch and disable cacheing*/
-	gpmc_prefetch_reset();
+	gpmc_prefetch_reset(0);
 
 	pr_debug("GPMC enabled, CS0 at 0x%08lx\n", cs_mem_base);
 }
