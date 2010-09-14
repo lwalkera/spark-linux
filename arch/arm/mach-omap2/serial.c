@@ -833,7 +833,7 @@ void __init omap_serial_init_port(int port)
 
 	if ((cpu_is_omap34xx() && uart->padconf) ||
 	    (uart->wk_en && uart->wk_mask)) {
-		device_init_wakeup(&od->pdev.dev, true);
+		device_init_wakeup(&od->pdev.dev, false);
 		DEV_CREATE_FILE(&od->pdev.dev, &dev_attr_sleep_timeout);
 	}
 
