@@ -89,6 +89,7 @@ int dss_need_ctx_restore(void)
 {
 	int id = dss_get_ctx_id();
 
+	return 1;
 	if (id < 0 || id != core.ctx_id) {
 		DSSDBG("ctx id %d -> id %d\n",
 				core.ctx_id, id);
