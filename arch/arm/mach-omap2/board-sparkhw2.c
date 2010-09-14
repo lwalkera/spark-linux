@@ -422,6 +422,8 @@ static struct omap_board_mux board_mux[] __initdata = {
 /* GPIO */
 	OMAP3_MUX(CAM_STROBE, OMAP_MUX_MODE4 | OMAP_PIN_OUTPUT),
 	/*GPIO_126 - mUSB PHY reset*/
+	OMAP3_MUX(ETK_D7, OMAP_MUX_MODE4 | OMAP_PIN_OUTPUT),
+	/*GPIO_21 - USB Host reset */
 	OMAP3_MUX(CAM_D0,     OMAP_MUX_MODE4 | OMAP_PIN_INPUT_PULLUP),
 	/*GPIO_99 - SD card detect*/
 	OMAP3_MUX(SYS_CLKREQ, OMAP_MUX_MODE4 | OMAP_PIN_INPUT_PULLUP | OMAP_PIN_OFF_INPUT_PULLUP | OMAP_PIN_OFF_WAKEUPENABLE),
@@ -453,6 +455,8 @@ static void __init spark_hw2_init(void)
 
 	gpio_request( 126, "usbclient-rst" );
 	gpio_direction_output( 126, true );
+	gpio_request( 21, "usbhost-rst" );
+	gpio_direction_output( 21, true );
 
 	usb_musb_init(&musb_board_data);
 	usb_ehci_init(&ehci_pdata);
