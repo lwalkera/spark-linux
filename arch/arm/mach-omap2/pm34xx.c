@@ -49,6 +49,20 @@
 #include "sdrc.h"
 #include "control.h"
 
+#ifdef CONFIG_SUSPEND
+
+static suspend_state_t suspend_state = PM_SUSPEND_ON;
+static inline bool is_suspending(void)
+{
+       return (suspend_state != PM_SUSPEND_ON);
+}
+#else
+static inline bool is_suspending(void)
+{
+       return false;
+}
+#endif
+
 /* Scratchpad offsets */
 #define OMAP343X_TABLE_ADDRESS_OFFSET	   0xc4
 #define OMAP343X_TABLE_VALUE_OFFSET	   0xc0
@@ -276,6 +290,7 @@ static irqreturn_t prcm_interrupt_handler (int irq, void *dev_id)
 	do {
 		if (irqstatus_mpu & (OMAP3430_WKUP_ST_MASK |
 				     OMAP3430_IO_ST_MASK)) {
+			printk("irqstatus %08x\n", irqstatus_mpu);
 			c = _prcm_int_handle_wakeup();
 
 			/*
@@ -407,15 +422,17 @@ void omap_sram_idle(void)
 	omap3_intc_prepare_idle();
 
 	/*
-	* On EMU/HS devices ROM code restores a SRDC value
+	* On all devices, ROM code restores a SRDC value
 	* from scratchpad which has automatic self refresh on timeout
 	* of AUTO_CNT = 1 enabled. This takes care of errata 1.142.
 	* Hence store/restore the SDRC_POWER register here.
 	*/
 	if (omap_rev() >= OMAP3430_REV_ES3_0 &&
-	    omap_type() != OMAP2_DEVICE_TYPE_GP &&
 	    core_next_state == PWRDM_POWER_OFF)
 		sdrc_pwr = sdrc_read_reg(SDRC_POWER);
+
+	if(is_suspending())
+		pm_dbg_regset_save(1);
 
 	/*
 	 * omap3_arm_context is the location where ARM registers
@@ -425,11 +442,13 @@ void omap_sram_idle(void)
 	_omap_sram_idle(omap3_arm_context, save_state);
 	cpu_init();
 
+	if(is_suspending())
+		pm_dbg_regset_save(2);
+
 	/* Restore normal SDRC POWER settings */
 	if (omap_rev() >= OMAP3430_REV_ES3_0 &&
-	    omap_type() != OMAP2_DEVICE_TYPE_GP &&
 	    core_next_state == PWRDM_POWER_OFF)
-		sdrc_write_reg(sdrc_pwr, SDRC_POWER);
+		;//sdrc_write_reg(sdrc_pwr, SDRC_POWER);
 
 	/* Restore table entry modified during MMU restoration */
 	if (pwrdm_read_prev_pwrst(mpu_pwrdm) == PWRDM_POWER_OFF)
@@ -446,10 +465,10 @@ void omap_sram_idle(void)
 		}
 		omap_uart_resume_idle(0);
 		omap_uart_resume_idle(1);
-		if (core_next_state == PWRDM_POWER_OFF)
-			prm_clear_mod_reg_bits(OMAP3430_AUTO_OFF_MASK,
-					       OMAP3430_GR_MOD,
-					       OMAP3_PRM_VOLTCTRL_OFFSET);
+		//if (core_next_state == PWRDM_POWER_OFF)
+		//	prm_clear_mod_reg_bits(OMAP3430_AUTO_OFF_MASK,
+		//			       OMAP3430_GR_MOD,
+		//			       OMAP3_PRM_VOLTCTRL_OFFSET);
 	}
 	omap3_intc_resume_idle();
 
@@ -474,6 +493,7 @@ void omap_sram_idle(void)
 	pwrdm_post_transition();
 
 	omap2_clkdm_allow_idle(mpu_pwrdm->pwrdm_clkdms[0]);
+	printk("sdrc_pwr before:%08x now:%08x\n", sdrc_pwr, sdrc_read_reg(SDRC_POWER));
 }
 
 int omap3_can_sleep(void)
@@ -1053,6 +1073,9 @@ static int __init omap3_pm_init(void)
 		local_irq_enable();
 		local_fiq_enable();
 	}
+
+	pm_dbg_regset_init(1);
+	pm_dbg_regset_init(2);
 
 	omap3_save_scratchpad_contents();
 err1:
