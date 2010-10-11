@@ -446,7 +446,6 @@ static struct omap_musb_board_data musb_board_data = {
 static void __init spark_hw2_init(void)
 {
 	omap3_mux_init(board_mux, OMAP_PACKAGE_CUS);
-	//spark_hw2_i2c_init();
 	platform_add_devices(spark_hw2_devices,
 			ARRAY_SIZE(spark_hw2_devices));
 	omap_serial_init();
@@ -456,8 +455,8 @@ static void __init spark_hw2_init(void)
 
 	gpio_request( 126, "usbclient-rst" );
 	gpio_direction_output( 126, true );
-	gpio_request( 21, "usbhost-rst" );
-	gpio_direction_output( 21, true );
+	gpio_request( 21, "usbhub-rst" );
+	gpio_direction_output( 21, false );
 
 	usb_musb_init(&musb_board_data);
 	usb_ehci_init(&ehci_pdata);
@@ -465,7 +464,7 @@ static void __init spark_hw2_init(void)
 
 	/* Ensure SDRC pins are mux'd for self-refresh */
 	omap_mux_init_signal("sdrc_cke0", OMAP_PIN_OUTPUT);
-
+	gpio_direction_output( 21, true );
 	omap_mux_init_gpio(9, OMAP_PIN_OUTPUT);
 	gpio_request( 9, "pwrsignal");
 	gpio_direction_output( 9, true);
