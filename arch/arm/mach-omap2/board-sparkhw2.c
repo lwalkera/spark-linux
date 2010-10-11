@@ -415,7 +415,12 @@ static const struct ehci_hcd_omap_platform_data ehci_pdata __initconst = {
 	.port_mode[1] = EHCI_HCD_OMAP_MODE_UNKNOWN,
 	.port_mode[2] = EHCI_HCD_OMAP_MODE_UNKNOWN,
 
-	.phy_reset  = false,
+	.phy_reset  = true,
+	.reset_gpio_port = {
+		-EINVAL,
+		23,
+		-EINVAL,
+	}
 };
 
 #ifdef CONFIG_OMAP_MUX
@@ -427,10 +432,9 @@ static struct omap_board_mux board_mux[] __initdata = {
 	/*GPIO_21 - USB Host reset */
 	OMAP3_MUX(CAM_D0,     OMAP_MUX_MODE4 | OMAP_PIN_INPUT_PULLUP),
 	/*GPIO_99 - SD card detect*/
-	OMAP3_MUX(SYS_CLKREQ, OMAP_MUX_MODE4 | OMAP_PIN_INPUT_PULLUP | OMAP_PIN_OFF_INPUT_PULLUP | OMAP_PIN_OFF_WAKEUPENABLE),
+	OMAP3_MUX(SYS_CLKREQ, OMAP_MUX_MODE4 | OMAP_PIN_INPUT_PULLDOWN |
+			OMAP_PIN_OFF_INPUT_PULLDOWN | OMAP_PIN_OFF_WAKEUPENABLE),
 	/*GPIO_1 - Wakeup signal from power mgr*/
-	OMAP3_MUX(JTAG_EMU0, OMAP_MUX_MODE4 | OMAP_PIN_INPUT_PULLUP | OMAP_PIN_OFF_INPUT_PULLUP | OMAP_PIN_OFF_WAKEUPENABLE),
-	OMAP3_MUX(JTAG_EMU1, OMAP_MUX_MODE4 | OMAP_PIN_INPUT_PULLUP | OMAP_PIN_OFF_INPUT_PULLUP | OMAP_PIN_OFF_WAKEUPENABLE),
 	{ .reg_offset = OMAP_MUX_TERMINATOR },
 };
 #else
@@ -466,14 +470,15 @@ static void __init spark_hw2_init(void)
 	omap_mux_init_signal("sdrc_cke0", OMAP_PIN_OUTPUT);
 	gpio_direction_output( 21, true );
 	omap_mux_init_gpio(9, OMAP_PIN_OUTPUT);
-	gpio_request( 9, "pwrsignal");
-	gpio_direction_output( 9, true);
+	gpio_request( 9, "sys_off_mode");
+	gpio_direction_output( 9, false);
 
 	// Init Spark FPGA IRQ and FPGA JTAG I/O
 	omap_mux_init_gpio( 55, OMAP_PIN_INPUT_PULLUP );
 	gpio_request( 55, "pasport-irq" );
 	gpio_direction_input( 55 );
 
+	omap_mux_init_gpio( 105, OMAP_PIN_INPUT_PULLUP );
 	omap_mux_init_gpio( 106, OMAP_PIN_INPUT_PULLUP );
 	omap_mux_init_gpio( 107, OMAP_PIN_INPUT_PULLUP );
 	omap_mux_init_gpio( 108, OMAP_PIN_INPUT_PULLUP );
