@@ -10,6 +10,11 @@ menuconfig LOGO
 
 if LOGO
 
+config SHOW_LOGO_NO_CONSOLE
+	bool "Show logo without a framebuffer console"
+	depends on !FRAMEBUFFER_CONSOLE
+	default y
+
 config FB_LOGO_EXTRA
 	bool
 	depends on FB=y

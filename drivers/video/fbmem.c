@@ -1605,6 +1605,14 @@ register_framebuffer(struct fb_info *fb_info)
 	if (!lock_fb_info(fb_info))
 		return -ENODEV;
 	fb_notifier_call_chain(FB_EVENT_FB_REGISTERED, &event);
+
+#ifdef CONFIG_SHOW_LOGO_NO_CONSOLE
+	if (fb_prepare_logo(fb_info, 0) < 0)
+		dev_err(fb_info->dev, "Failed to prepare logo\n");
+	else if (fb_show_logo(fb_info, 0) < 0)
+		dev_err(fb_info->dev, "Failed to draw logo\n");
+#endif
+
 	unlock_fb_info(fb_info);
 	return 0;
 }
