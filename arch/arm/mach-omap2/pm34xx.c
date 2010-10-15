@@ -633,7 +633,9 @@ static int omap3_pm_suspend(void)
 	omap_uart_prepare_suspend();
 	omap3_intc_suspend();
 
+	gpio_direction_output(9, true);
 	omap_sram_idle();
+	gpio_direction_output(9, false);
 
 restore:
 	/* Restore next_pwrsts */
