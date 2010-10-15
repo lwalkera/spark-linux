@@ -587,7 +587,8 @@ static int omap_dss_probe(struct platform_device *pdev)
 			pdata->default_device = dssdev;
 	}
 
-	dss_clk_disable_all();
+	if(!skip_init)
+		dss_clk_disable_all();
 
 	return 0;
 
