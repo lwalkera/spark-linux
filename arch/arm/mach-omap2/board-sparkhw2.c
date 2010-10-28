@@ -38,12 +38,12 @@
 #include <plat/gpmc.h>
 #include <plat/nand.h>
 #include <plat/usb.h>
-#include <plat/timer-gp.h>
 #include <plat/display.h>
 #include <plat/omap-pm.h>
 
 #include "mux.h"
 #include "hsmmc.h"
+#include "timer-gp.h"
 
 #include "sdram-micron-mt46h16m32lf-6.h"
 
@@ -489,8 +489,6 @@ static void __init spark_hw2_init(void)
 
 MACHINE_START(SPARK_SLS_HW2, "PASCO scientific SPARKsls HW2")
 	/* Maintainer: Laine Walker-Avina <lwalkera@pasco.com> */
-	.phys_io		= 0x48000000,
-	.io_pg_offst	= ((0xfa000000) >> 18) & 0xfffc,
 	.boot_params	= 0x80000100,
 	.map_io			= omap3_map_io,
 	.reserve		= omap_reserve,
