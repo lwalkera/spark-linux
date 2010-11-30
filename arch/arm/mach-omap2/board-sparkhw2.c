@@ -392,7 +392,7 @@ static void __init spark_hw2_init_gpmc(void)
 		.wr_cycle	= 373,
 	};
 
-	/*Setup CONFIG1 as 16-bit, async, non-muxed, with all times x2*/
+	/*Setup CS0_CONFIG1 as 16-bit, async, non-muxed, with all times x2*/
 	gpmc_cs_write_reg(0, GPMC_CS_CONFIG1,
 			GPMC_CONFIG1_DEVICESIZE_16 | GPMC_CONFIG1_TIME_PARA_GRAN);
 
@@ -410,6 +410,25 @@ static void __init spark_hw2_init_gpmc(void)
 	gpmc_prefetch_reset(0);
 
 	pr_debug("GPMC enabled, CS0 at 0x%08lx\n", cs_mem_base);
+
+	/*Setup CS3_CONFIG1 as 16-bit, async, non-muxed, with all times x2*/
+	gpmc_cs_write_reg(3, GPMC_CS_CONFIG1,
+			GPMC_CONFIG1_DEVICESIZE_16 | GPMC_CONFIG1_TIME_PARA_GRAN);
+
+	if(gpmc_cs_set_timings(3, &timings) < 0)
+	{
+		pr_err("Failed to set GPMC timings\n");
+		return;
+	}
+
+	if (gpmc_cs_request(3, SZ_16M, &cs_mem_base) < 0) {
+		pr_err("Failed to request GPMC mem\n");
+		return;
+	}
+	/* Disable prefetch and disable cacheing*/
+	gpmc_prefetch_reset(3);
+
+	pr_debug("GPMC enabled, CS3 at 0x%08lx\n", cs_mem_base);
 }
 
 static const struct ehci_hcd_omap_platform_data ehci_pdata __initconst = {
@@ -480,12 +499,7 @@ static void __init spark_hw2_init(void)
 	gpio_request( 55, "pasport-irq" );
 	gpio_direction_input( 55 );
 
-	omap_mux_init_gpio( 105, OMAP_PIN_INPUT_PULLUP );
-	omap_mux_init_gpio( 106, OMAP_PIN_INPUT_PULLUP );
-	omap_mux_init_gpio( 107, OMAP_PIN_INPUT_PULLUP );
-	omap_mux_init_gpio( 108, OMAP_PIN_INPUT_PULLUP );
-	omap_mux_init_gpio( 109, OMAP_PIN_INPUT_PULLUP );
-	omap_mux_init_gpio( 110, OMAP_PIN_INPUT_PULLUP );
+	omap_mux_init_gpio( 95, OMAP_PIN_INPUT_PULLUP );
 }
 
 MACHINE_START(SPARK_SLS_HW2, "PASCO scientific SPARKsls HW2")
