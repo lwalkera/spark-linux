@@ -510,16 +510,17 @@ static int omap_dss_probe(struct platform_device *pdev)
 	if (r)
 		goto err_clocks;
 
-	dss_clk_enable_all_no_ctx();
-
-	core.ctx_id = dss_get_ctx_id();
-	DSSDBG("initial ctx id %u\n", core.ctx_id);
-
 #ifdef CONFIG_FB_OMAP_BOOTLOADER_INIT
 	/* DISPC_CONTROL */
 	if (omap_readl(0x48050440) & 1)	/* LCD enabled? */
 		skip_init = 1;
 #endif
+
+	if(!skip_init)
+		dss_clk_enable_all_no_ctx();
+
+	core.ctx_id = dss_get_ctx_id();
+	DSSDBG("initial ctx id %u\n", core.ctx_id);
 
 	r = dss_init(skip_init);
 	if (r) {
