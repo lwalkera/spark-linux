@@ -456,6 +456,9 @@ static struct omap_board_mux board_mux[] __initdata = {
 	OMAP3_MUX(SYS_CLKREQ, OMAP_MUX_MODE4 | OMAP_PIN_INPUT_PULLDOWN |
 			OMAP_PIN_OFF_INPUT_PULLDOWN | OMAP_PIN_OFF_WAKEUPENABLE),
 	/*GPIO_1 - Wakeup signal from power mgr*/
+	OMAP3_MUX(UART3_RX_IRRX, OMAP_MUX_MODE0 | OMAP_PIN_INPUT_PULLDOWN |
+			OMAP_PIN_OFF_INPUT_PULLDOWN),
+	/*UART3_RX - Set pulldowns so it won't wakeup from EMI*/
 	{ .reg_offset = OMAP_MUX_TERMINATOR },
 };
 #else
