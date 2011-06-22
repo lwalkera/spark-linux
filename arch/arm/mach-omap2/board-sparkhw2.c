@@ -483,8 +483,6 @@ static void __init spark_hw2_init(void)
 
 	gpio_request( 126, "usbclient-rst" );
 	gpio_direction_output( 126, true );
-	gpio_request( 21, "usbhub-rst" );
-	gpio_direction_output( 21, false );
 
 	usb_musb_init(&musb_board_data);
 	usb_ehci_init(&ehci_pdata);
@@ -492,7 +490,6 @@ static void __init spark_hw2_init(void)
 
 	/* Ensure SDRC pins are mux'd for self-refresh */
 	omap_mux_init_signal("sdrc_cke0", OMAP_PIN_OUTPUT);
-	gpio_direction_output( 21, true );
 	omap_mux_init_gpio(9, OMAP_PIN_OUTPUT);
 	gpio_request( 9, "sys_off_mode");
 	gpio_direction_output( 9, false);
