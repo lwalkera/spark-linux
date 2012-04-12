@@ -38,10 +38,10 @@
 #include <plat/gpmc.h>
 #include <plat/nand.h>
 #include <plat/usb.h>
-#include <plat/timer-gp.h>
 #include <plat/display.h>
 #include <plat/omap-pm.h>
 
+#include "timer-gp.h"
 #include "mux.h"
 #include "hsmmc.h"
 
@@ -50,16 +50,14 @@
 static struct omap2_hsmmc_info mmc[] = {
 	{
 		.mmc		= 1,
-		.wires		= 4,
-		//.caps		= MMC_CAP_4_BIT_DATA,
+		.caps		= MMC_CAP_4_BIT_DATA,
 		.gpio_cd	= 99,
 		.gpio_wp	= -EINVAL,
 		.nonremovable = false,
 	},
 	{
 		.mmc		= 2,
-		.wires		= 8,
-		//.caps		= MMC_CAP_4_BIT_DATA | MMC_CAP_8_BIT_DATA,
+		.caps		= MMC_CAP_4_BIT_DATA | MMC_CAP_8_BIT_DATA,
 		.gpio_cd	= -EINVAL,
 		.gpio_wp	= -EINVAL,
 		.nonremovable = true,
@@ -83,7 +81,6 @@ static struct omap_dss_board_info spark_hw2_dss_data = {
 	.num_devices	= ARRAY_SIZE(spark_hw2_dss_devices),
 	.devices	= spark_hw2_dss_devices,
 	.default_device	= &spark_hw2_lcd_device,
-	.get_last_off_on_transaction_id = omap_pm_get_dev_context_loss_count,
 };
 
 static struct platform_device spark_hw2_dss_device = {
@@ -313,12 +310,13 @@ static void __init spark_hw2_init_irq(void)
 {
 	omap_board_config = spark_hw2_config;
 	omap_board_config_size = ARRAY_SIZE(spark_hw2_config);
-	omap2_init_common_hw(mt46h16m32lf6_sdrc_params, NULL);
+	omap2_init_common_infrastructure();
+	omap2_init_common_devices(mt46h16m32lf6_sdrc_params, NULL);
 	omap_init_irq();
+	gpmc_init();
 #ifdef CONFIG_OMAP_32K_TIMER
 	omap2_gp_clockevent_set_gptimer(12);
 #endif
-	omap_gpio_init();
 }
 
 static void __init spark_hw2_init_extclks(void)
@@ -505,8 +503,6 @@ static void __init spark_hw2_init(void)
 
 MACHINE_START(SPARK_SLS_HW2, "PASCO scientific SPARKsls HW2")
 	/* Maintainer: Laine Walker-Avina <lwalkera@pasco.com> */
-	.phys_io		= 0x48000000,
-	.io_pg_offst	= ((0xfa000000) >> 18) & 0xfffc,
 	.boot_params	= 0x80000100,
 	.map_io			= omap3_map_io,
 	.reserve		= omap_reserve,
